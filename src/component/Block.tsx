@@ -34,6 +34,7 @@ const Block: React.FC<BlockProps> = ({
         },
         body: JSON.stringify({}), // Ваши данные
       });
+      console.log(response);
 
       // response.ok === false при статусе 400, 500 и т.п.
       if (!response.ok) {

@@ -89,9 +89,11 @@ export interface ChatProps {
 }
 
 const Chat: React.FC<ChatProps> = ({ selectedChatRoom }) => {
-  // const chatId = "678131707b89f45207cf3b9a";
+  if (!selectedChatRoom) {
+    return;
+  }
   const chatId = selectedChatRoom;
-  console.log(chatId);
+  console.log(chatId, "chatid");
   const consultId = localStorage.getItem("consultId")?.toString() || "";
   const jwt = localStorage.getItem("token")?.toString() || "";
   const socket: Socket = io("http://10.10.12.62:3000", {
@@ -100,10 +102,12 @@ const Chat: React.FC<ChatProps> = ({ selectedChatRoom }) => {
     },
     query: {
       chatId: chatId,
-      consultation: consultId,
+      consultationId: consultId,
     },
   });
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [messages, setMessages] = useState<Message[]>([]);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [message, setMessage] = useState<string>("");
 
   const getAllMessages = async (): Promise<void> => {
@@ -124,6 +128,7 @@ const Chat: React.FC<ChatProps> = ({ selectedChatRoom }) => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const handleMessage = () => {
       console.log("YES");
@@ -169,20 +174,22 @@ const Chat: React.FC<ChatProps> = ({ selectedChatRoom }) => {
       ],
     };
 
-    try {
-      await fetch("http://10.10.12.62:3000/api/chat/message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: jwt,
-        },
-        body: JSON.stringify(newMessage),
-      });
-      await getAllMessages();
-      setMessage("");
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
+    socket.emit("message", newMessage);
+
+    // try {
+    //   await fetch("http://10.10.12.62:3000/api/chat/message", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       Authorization: jwt,
+    //     },
+    //     body: JSON.stringify(newMessage),
+    //   });
+    //   await getAllMessages();
+    //   setMessage("");
+    // } catch (error) {
+    //   console.error("Error sending message:", error);
+    // }
   };
 
   return (
