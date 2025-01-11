@@ -45,14 +45,14 @@ export interface Message {
   deletedBy: string | null;
   createdBy: string | null;
   updatedBy: string | null;
-  author: Author;
+  author?: Author;
   repliedMessage: Message | null; // Recursive relationship for replied messages
   file: File | null; // Assuming file structure exists
 }
 
 export interface Author {
-  id: string;
-  approvedAt: string | null;
+  id?: string;
+  approvedAt?: string | null;
   blockedAt: string | null;
   shiftStatus: string | null;
   telegramId: string | null;
@@ -80,26 +80,26 @@ export interface Pagination {
 }
 
 export interface NewMessageRequest {
-  content: string;
+  messages: Message[];
   consultationId: string;
 }
 
 export interface ChatProps {
-  selectedChatRoom: number | null; // Accept number or null for selectedChatRoom
+  selectedChatRoom: string | null; // Accept number or null for selectedChatRoom
 }
 
 const Chat: React.FC<ChatProps> = ({ selectedChatRoom }) => {
   // const chatId = "678131707b89f45207cf3b9a";
   const chatId = selectedChatRoom;
-  const consultId = "ee7b97e2-6bee-4d06-b5c6-e2de644f44eb";
-  const jwt =
-    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MmIzYjJkYTQ4MDg5MWNhYjdlMTY3NyIsImlzX3ZlcmlmaWVkIjpmYWxzZSwiY3JlYXRlZF9hdCI6IjIwMjQtMTEtMDZUMDk6NDc6MjUuMTg4WiIsInJvbGUiOiJ1c2VyIiwiaXNfZGVsZXRlZCI6ZmFsc2UsImNyZWF0ZWRfYnkiOm51bGwsImxhbmciOm51bGwsInBob25lX251bWJlciI6Ijk5ODkwOTkyMzEyNiIsImZpcnN0X25hbWUiOm51bGwsImxhc3RfbmFtZSI6bnVsbCwiYmlydGhfZGF0ZSI6bnVsbCwiZmlsZV9wYXRoIjpudWxsLCJ2ZXJpZmljYXRpb25fYXR0ZW1wdCI6IjEiLCJibG9ja2VkX2F0IjpudWxsLCJhdHRlbXB0X2NvdW50IjowLCJnZW5kZXIiOm51bGwsImJsb29kX2dyb3VwX2lkIjpudWxsLCJwYXNzd29yZCI6IiQyYiQxMCRrdFp4Q0dheldiVUVpSWJBZzJ3UzZPdkRpMDZWL2QydndPdlhJWnZ1U2lKZHhTMkJLSzNIMiIsImlhdCI6MTczMDg4NjQ3OH0.jxXgva6skpliWDcmcaiFc3kfbTe_Vwto5QqQ9CCnjqM";
-  const socket: Socket = io("http://10.10.12.70:3000", {
+  console.log(chatId);
+  const consultId = localStorage.getItem("consultId")?.toString() || "";
+  const jwt = localStorage.getItem("token")?.toString() || "";
+  const socket: Socket = io("http://10.10.12.62:3000", {
     extraHeaders: {
       authorization: jwt,
     },
     query: {
-      chatId,
+      chatId: chatId,
       consultation: consultId,
     },
   });
@@ -109,7 +109,7 @@ const Chat: React.FC<ChatProps> = ({ selectedChatRoom }) => {
   const getAllMessages = async (): Promise<void> => {
     try {
       const response = await fetch(
-        "http://10.10.12.70:3000/api/chat/all-messages?limit=10&page=1",
+        "http://10.10.12.62:3000/api/chat/all-messages?limit=10&page=1",
         {
           headers: {
             Authorization: jwt,
@@ -126,9 +126,7 @@ const Chat: React.FC<ChatProps> = ({ selectedChatRoom }) => {
 
   useEffect(() => {
     const handleMessage = () => {
-      //  console.log("ishlaid wqqqqqqq");
-
-      //  setMessages((prevMessages) => [...prevMessages, newMessage]);
+      console.log("YES");
       getAllMessages();
     };
 
@@ -145,12 +143,34 @@ const Chat: React.FC<ChatProps> = ({ selectedChatRoom }) => {
     if (!message) return;
 
     const newMessage: NewMessageRequest = {
-      content: message,
       consultationId: consultId,
+      messages: [
+        {
+          content: message,
+          id: "",
+          fileId: null,
+          chatId: chatId || "",
+          repliedMessageId: null,
+          tgMsgId: null,
+          authorId: "",
+          firstname: null,
+          lastname: null,
+          isDeleted: false,
+          deletedAt: null,
+          createdAt: "",
+          updatedAt: "",
+          deletedBy: null,
+          createdBy: null,
+          updatedBy: null,
+          author: undefined,
+          repliedMessage: null,
+          file: null,
+        },
+      ],
     };
 
     try {
-      await fetch("http://10.10.12.70:3000/api/chat/message", {
+      await fetch("http://10.10.12.62:3000/api/chat/message", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

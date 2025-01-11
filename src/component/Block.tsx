@@ -1,34 +1,57 @@
 import React, { useState } from "react";
 
 interface ChatRoom {
-  id: number;
-  name: string;
-  members: number;
-  content: string;
+  chatId: string;
+  createdAt: string;
+  id: string;
+  operatorId: string;
+  status: number;
+  userId: string;
 }
 
 interface BlockProps {
   chatRooms: ChatRoom[];
   onSelectChatRoom: (chatRoom: ChatRoom) => void;
-  selectedChatRoomId: number | null; // ID of the selected chat room
+  onGetAll: () => void;
+  selectedChatRoomId: string | null; // ID of the selected chat room
 }
 
 const Block: React.FC<BlockProps> = ({
   chatRooms,
   onSelectChatRoom,
+  onGetAll,
   selectedChatRoomId,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newRoomName, setNewRoomName] = useState("");
 
-  const handleAddRoom = () => {
-    if (newRoomName.trim()) {
-      console.log("Room Created:", newRoomName);
-      // Add your API call or logic here to save the new room
+  const handleAddRoom = async () => {
+    try {
+      const response = await fetch("http://10.10.12.62:5001/api/consultation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token")?.toString() || "",
+        },
+        body: JSON.stringify({}), // Ваши данные
+      });
+
+      // response.ok === false при статусе 400, 500 и т.п.
+      if (!response.ok) {
+        // Можно вывести дополнительную информацию об ошибке
+        const errorMessage = await response.text();
+        alert(`Ошибка: ${response.status} ${errorMessage}`);
+        return;
+      }
+
+      // Если всё хорошо:
+      onGetAll();
       setIsModalOpen(false);
-      setNewRoomName("");
-    } else {
-      alert("Please enter a room name");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert(String(error));
+      }
     }
   };
 
@@ -69,19 +92,19 @@ const Block: React.FC<BlockProps> = ({
               boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
               cursor: "pointer",
               backgroundColor:
-                selectedChatRoomId === chatRoom.id ? "#007BFF" : "#fff", // Change background for selected room
-              color: selectedChatRoomId === chatRoom.id ? "#fff" : "#000", // Adjust text color
+                selectedChatRoomId === chatRoom.chatId ? "#007BFF" : "#fff", // Change background for selected room
+              color: selectedChatRoomId === chatRoom.chatId ? "#fff" : "#000", // Adjust text color
             }}
           >
-            <h3 style={{ margin: "0 0 10px" }}>{chatRoom.name}</h3>
+            <h3 style={{ margin: "0 0 10px" }}>{chatRoom.chatId}</h3>
             <p style={{ margin: "0" }}>
-              Members: <strong>{chatRoom.members}</strong>
+              Operator: <strong>{chatRoom.operatorId}</strong>
+              User: <strong>{chatRoom.userId}</strong>
             </p>
           </div>
         ))}
       </div>
 
-      {/* Modal */}
       {isModalOpen && (
         <div
           style={{
@@ -106,21 +129,6 @@ const Block: React.FC<BlockProps> = ({
             }}
           >
             <h2>Create New Room</h2>
-            <input
-              type="text"
-              placeholder="Room Name"
-              value={newRoomName}
-              onChange={(e) => setNewRoomName(e.target.value)}
-              style={{
-                width: "90%", // Уменьшена ширина, чтобы инпут не касался краёв
-                padding: "10px", // Унифицированное поле сверху, снизу, справа, слева
-                margin: "10px auto", // Отступы сверху и снизу, центрирование по горизонтали
-                border: "1px solid #ddd",
-                borderRadius: "5px",
-                display: "block", // Центрирует инпут внутри контейнера
-              }}
-            />
-
             <div
               style={{
                 display: "flex",
