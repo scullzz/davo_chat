@@ -84,21 +84,25 @@ export interface NewMessageRequest {
   consultationId: string;
 }
 
-const chatId = "678131707b89f45207cf3b9a";
-const consultId = "ee7b97e2-6bee-4d06-b5c6-e2de644f44eb";
-const jwt =
-  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MmIzYjJkYTQ4MDg5MWNhYjdlMTY3NyIsImlzX3ZlcmlmaWVkIjpmYWxzZSwiY3JlYXRlZF9hdCI6IjIwMjQtMTEtMDZUMDk6NDc6MjUuMTg4WiIsInJvbGUiOiJ1c2VyIiwiaXNfZGVsZXRlZCI6ZmFsc2UsImNyZWF0ZWRfYnkiOm51bGwsImxhbmciOm51bGwsInBob25lX251bWJlciI6Ijk5ODkwOTkyMzEyNiIsImZpcnN0X25hbWUiOm51bGwsImxhc3RfbmFtZSI6bnVsbCwiYmlydGhfZGF0ZSI6bnVsbCwiZmlsZV9wYXRoIjpudWxsLCJ2ZXJpZmljYXRpb25fYXR0ZW1wdCI6IjEiLCJibG9ja2VkX2F0IjpudWxsLCJhdHRlbXB0X2NvdW50IjowLCJnZW5kZXIiOm51bGwsImJsb29kX2dyb3VwX2lkIjpudWxsLCJwYXNzd29yZCI6IiQyYiQxMCRrdFp4Q0dheldiVUVpSWJBZzJ3UzZPdkRpMDZWL2QydndPdlhJWnZ1U2lKZHhTMkJLSzNIMiIsImlhdCI6MTczMDg4NjQ3OH0.jxXgva6skpliWDcmcaiFc3kfbTe_Vwto5QqQ9CCnjqM";
-const socket: Socket = io("http://10.10.12.70:3000", {
-  extraHeaders: {
-    authorization: jwt,
-  },
-  query: {
-    chatId,
-    consultation: consultId,
-  },
-});
+export interface ChatProps {
+  selectedChatRoom: number | null; // Accept number or null for selectedChatRoom
+}
 
-const Chat: React.FC = () => {
+const Chat: React.FC<ChatProps> = ({ selectedChatRoom }) => {
+  // const chatId = "678131707b89f45207cf3b9a";
+  const chatId = selectedChatRoom;
+  const consultId = "ee7b97e2-6bee-4d06-b5c6-e2de644f44eb";
+  const jwt =
+    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MmIzYjJkYTQ4MDg5MWNhYjdlMTY3NyIsImlzX3ZlcmlmaWVkIjpmYWxzZSwiY3JlYXRlZF9hdCI6IjIwMjQtMTEtMDZUMDk6NDc6MjUuMTg4WiIsInJvbGUiOiJ1c2VyIiwiaXNfZGVsZXRlZCI6ZmFsc2UsImNyZWF0ZWRfYnkiOm51bGwsImxhbmciOm51bGwsInBob25lX251bWJlciI6Ijk5ODkwOTkyMzEyNiIsImZpcnN0X25hbWUiOm51bGwsImxhc3RfbmFtZSI6bnVsbCwiYmlydGhfZGF0ZSI6bnVsbCwiZmlsZV9wYXRoIjpudWxsLCJ2ZXJpZmljYXRpb25fYXR0ZW1wdCI6IjEiLCJibG9ja2VkX2F0IjpudWxsLCJhdHRlbXB0X2NvdW50IjowLCJnZW5kZXIiOm51bGwsImJsb29kX2dyb3VwX2lkIjpudWxsLCJwYXNzd29yZCI6IiQyYiQxMCRrdFp4Q0dheldiVUVpSWJBZzJ3UzZPdkRpMDZWL2QydndPdlhJWnZ1U2lKZHhTMkJLSzNIMiIsImlhdCI6MTczMDg4NjQ3OH0.jxXgva6skpliWDcmcaiFc3kfbTe_Vwto5QqQ9CCnjqM";
+  const socket: Socket = io("http://10.10.12.70:3000", {
+    extraHeaders: {
+      authorization: jwt,
+    },
+    query: {
+      chatId,
+      consultation: consultId,
+    },
+  });
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
 
